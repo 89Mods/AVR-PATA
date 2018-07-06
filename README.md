@@ -8,15 +8,17 @@ Speed: up to 20MHz
 I/O Pins: 25
 
 Default pin config:
-(AVR)     -     (HDD)
-PA0 - 7         DD0 - 7
-PC0 - 7         DD8 - 15
-PD7             DIOW-
-PD6             DIOR-
-PD5             IORDY
-PB0 - 2         DA0 - 2
-PB3             CS3FX-
-PB4             CS1FX-
+
+AVR | HDD
+--- | ---
+PA0 - 7|DD0 - 7
+PC0 - 7|DD8 - 15
+PD7|DIOW-
+PD6|DIOR-
+PD5|IORDY
+PB0 - 2|DA0 - 2
+PB3|CS3FX-
+PB4|CS1FX-
 
 DMACK needs to be connected to VCC or Ground
 All ground pins, SPSYNC, DMARQ, INTRQ and IOCS16- need to be connected to Ground
