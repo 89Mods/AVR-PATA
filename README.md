@@ -3,9 +3,9 @@
 This library makes it possible to connect any Parallel ATA HDD to an AVR AtMega Microcontroller.
 
 Requirements:
-RAM: 768 bytes without FatFS, 8KB (preferrably more) with FatFS
-Speed: up to 20MHz
-I/O Pins: 25
+* RAM: 768 bytes without FatFS, 8KB (preferrably more) with FatFS
+* Speed: up to 20MHz
+* I/O Pins: 25
 
 Default pin config:
 
@@ -26,6 +26,7 @@ You can connect an LED to DASP- as an activity LED
 Lastly, it is recommended to connect the Reset pin on the HDD with the Reset pin on the AVR
 
 PATA pinout diagram: https://i.imgur.com/gx2Lhfm.png (Source: ATA Interface Reference Manual - Seagate)
+
 Pinout for 2.5'' drives: https://i.imgur.com/zYXHgGj.png (Same source as above)
 
 This library has also been confirmed to work with SATA to PATA adapters.
