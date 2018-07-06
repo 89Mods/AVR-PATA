@@ -36,6 +36,10 @@ If you are using an older drive, it is possible that the library runs too fast f
 All functions in ata.c have a short description of their function, arguments and returned value above them.
 example.c contains a full example program.
 
+diskio.c is only required if this library is used together with FatFS. Simply replace the diskio.c downloaded with FatFS with the one available here to use any connected drive in FatFS. The file is currently compatible with FatFS version R0.13b.
+
+FatFS can be found and downloaded here: http://elm-chan.org/fsw/ff/00index_e.html
+
 This library requires for the connected drive to have a valid MBR and partition table. If the connected drive does not have a valid MBR and/or partition table, use the ata_reqwriteMBR and ata_createPartition functions to create them (Warning! These functions will overwrite and existing MBR and/or partition table, which can cause data loss. Use them carefully!).
 
 Due to a limitation in ATA-1, LBA addresses are only 28-bit, meaning the maximum usable drive capacity is 128GiB (137 GB). Larger drives can be connected, but partitions that go beyond this limit are marked as invalid and ignored. It is recommended to set up one primary partition that ends at exactly sector # 2^28. The first partition is also required to not start before sector 2048.
