@@ -6,7 +6,7 @@
  */ 
 
 #ifndef F_CPU
-#define F_CPU 16000000UL
+#define F_CPU 20000000UL
 #endif
 
 #include <avr/io.h>
@@ -223,17 +223,24 @@ void ata_writeBuffer(uint8_t *Buffer, uint16_t numBytes) {
 	PORTB = NOP;
 }
 
-//Reads a sector
+//Reads a single sector
 //Parameters: destination array, LBA address
 //Returns: error code (0 = no error)
 uint8_t ata_readSector(uint8_t *Buffer, uint32_t lba) {
+	return ata_readSectors(Buffer, lba, 1);
+}
+
+//Reads multiple sectors
+//Parameters: destination array, LBA address, ammount of sectors to read
+//Returns: error code (0 = no error)
+uint8_t ata_readSectors(uint8_t *Buffer, uint32_t lba, uint8_t count) {
 	ata_busyWait();
 	
 	ata_writeByte(REG_SECTOR_NUM, lba & 0x000000FFL);
 	ata_writeByte(REG_CYLINDER_LOW, (lba >> 8) & 0x000000FFL);
 	ata_writeByte(REG_CYLINDER_HIGH, (lba >> 16) & 0x000000FFL);
 	ata_writeByte(REG_DRIVE_HEAD, DRV_HEAD_BASE | ((lba >> 24) & 0x0FL));
-	ata_writeByte(REG_SECTOR_COUNT, 1);
+	ata_writeByte(REG_SECTOR_COUNT, count);
 	
 	ata_writeByte(REG_STAT_CMD, CMD_READ_SEC);
 	_delay_us(0.25);
@@ -241,32 +248,38 @@ uint8_t ata_readSector(uint8_t *Buffer, uint32_t lba) {
 	
 	if(ata_readByte(REG_STAT_CMD) & 0x01)
 		return ata_readByte(REG_ERR_FEAT);
-	
+		
 	ata_waitForData();
-	
-	ata_readBuffer(Buffer, 512);
+	ata_readBuffer(Buffer, 512 * (uint16_t)count);
 	
 	return (ata_readByte(REG_STAT_CMD) & 0x01) ? ata_readByte(REG_ERR_FEAT) : 0;
 }
 
-//Writes a sector
+//Writes a single sector
 //Parameters: source array, LBA address
 //Returns: error code (0 = no error)
 uint8_t ata_writeSector(uint8_t *Buffer, uint32_t lba) {
+	return ata_writeSectors(Buffer, lba, 1);
+}
+
+//Writes multiple sectors
+//Parameters: source array, LBA address, ammount of sectors to write
+//Returns: error code (0 = no error)
+uint8_t ata_writeSectors(uint8_t *Buffer, uint32_t lba, uint8_t count) {
 	ata_busyWait();
 	
 	ata_writeByte(REG_SECTOR_NUM, lba & 0x000000FFL);
 	ata_writeByte(REG_CYLINDER_LOW, (lba >> 8) & 0x000000FFL);
 	ata_writeByte(REG_CYLINDER_HIGH, (lba >> 16) & 0x000000FFL);
 	ata_writeByte(REG_DRIVE_HEAD, DRV_HEAD_BASE | ((lba >> 24) & 0x0FL));
-	ata_writeByte(REG_SECTOR_COUNT, 1);
+	ata_writeByte(REG_SECTOR_COUNT, count);
 	
 	ata_writeByte(REG_STAT_CMD, CMD_WRITE_SEC);
-	_delay_us(0.25);
+	_delay_us(0.15);
 	ata_busyWait();
 	ata_waitForData();
 	
-	ata_writeBuffer(Buffer, 512);
+	ata_writeBuffer(Buffer, (uint16_t)count * 512);
 	
 	ata_busyWait();
 	

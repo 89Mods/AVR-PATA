@@ -73,20 +73,11 @@ DRESULT disk_read (
 
 	switch (pdrv) {
 	case DEV_HDD:
-		//Check if IORDY pin from HDD is high and partition 0 exists (size != 0)
 		if((PIND & (1 << PD5)) == 0 || ata_getPartitionSize(0) == 0) return RES_NOTRDY;
-		uint8_t t = ata_readByte(REG_STAT_CMD); //Also check RDY in status register
+		uint8_t t = ata_readByte(REG_STAT_CMD);
 		if(!((t & 0b10000000) == 0 && (t & 0b01000000) != 0)) return RES_NOTRDY;
-		//Until I add a function to read multiple sectors directly, this'll have to do
-		for(UINT i = 0; i < count; i++){
-			uint32_t actualSec = count - i - 1;
-			uint8_t err = ata_readSector(buff, sector + actualSec + ata_getPartitionLocation(0));
-			if(err != 0) return RES_ERROR;
-			if(count == 1 || actualSec == 0) break;
-			for(uint16_t j = 0; j < 512; j++){
-				buff[actualSec * 512 + j] = buff[j];
-			}
-		}
+		uint8_t err = ata_readSectors(buff, (uint32_t)sector + ata_getPartitionLocation(0), count);
+		if(err != 0) return RES_ERROR;
 		return res;
 	}
 
@@ -113,14 +104,8 @@ DRESULT disk_write (
 		if((PIND & (1 << PD5)) == 0 || ata_getPartitionSize(0) == 0) return RES_NOTRDY;
 		uint8_t t = ata_readByte(REG_STAT_CMD);
 		if(!((t & 0b10000000) == 0 && (t & 0b01000000) != 0)) return RES_NOTRDY;
-		uint8_t buff2[512];
-		for(uint16_t i = 0; i < count; i++) {
-			for(uint16_t j = 0; j < 512; j++) {
-				buff2[j] = buff[i * 512 + j];
-			}
-			uint8_t err = ata_writeSector(buff2, (uint32_t)sector + ata_getPartitionLocation(0)); //Allways offset address by start of partition!
-			if(err != 0) return RES_ERROR;
-		}
+		uint8_t err = ata_writeSectors(buff, (uint32_t)sector + ata_getPartitionLocation(0), count);
+		if(err != 0) return RES_ERROR;
 		return res;
 	}
 
